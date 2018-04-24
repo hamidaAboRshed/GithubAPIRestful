@@ -15,50 +15,6 @@ namespace GithubWebService.Controllers
     {
         private static GithubDataContext db = new GithubDataContext();
 
-        //old one
-        private static void ReceiveMessageFromQueue(string queueName)
-        {
-            MessageQueue msMq = msMq = new MessageQueue(queueName);
-            try
-            {
-
-                 msMq.Formatter = new XmlMessageFormatter(new Type[] {typeof(string)});
-
-                //msMq.Formatter = new XmlMessageFormatter(new Type[] { typeof(Person) });
-
-                var message = msMq.Receive().Body;
-
-                //Console.WriteLine("FirstName: " + message.FirstName + ", LastName: " + message.LastName);
-
-                // Console.WriteLine(message.Body.ToString());
-
-            }
-
-            catch (MessageQueueException ee)
-            {
-
-                Console.Write(ee.ToString());
-
-            }
-
-            catch (Exception eee)
-            {
-
-                Console.Write(eee.ToString());
-
-            }
-
-            finally
-            {
-
-                msMq.Close();
-
-            }
-
-            Console.WriteLine("Message received ......");
-
-        }
-
         //Get Repository for User
         public static List<Repository> GetRepository(string username)
         {
