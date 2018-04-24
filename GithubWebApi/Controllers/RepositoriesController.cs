@@ -7,59 +7,200 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
-using System.Web.Http.OData;
-using System.Web.Http.OData.Routing;
+using System.Web.Http.Description;
 using GithubWebApi.Models;
+using System.Messaging;
+using System.Xml.Serialization;
+using System.IO;
+using System.Xml;
+using System.Text;
+using System.Xml.Linq;
 
 namespace GithubWebApi.Controllers
 {
-    /*
-    The WebApiConfig class may require additional changes to add a route for this controller. Merge these statements into the Register method of the WebApiConfig class as applicable. Note that OData URLs are case sensitive.
-
-    using System.Web.Http.OData.Builder;
-    using System.Web.Http.OData.Extensions;
-    using GithubWebApi.Models;
-    ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<Repository>("Repositories");
-    builder.EntitySet<User>("User"); 
-    config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
-    */
-    public class RepositoriesController : ODataController
+    public class RepositoriesController : ApiController
     {
         private GithubDataContext db = new GithubDataContext();
 
-        // GET: odata/Repositories
-        [EnableQuery]
-        public IQueryable<Repository> GetRepositories()
+        // GET: api/Repositories
+        public IQueryable<Repository> GetRepository()
         {
             return db.Repository;
         }
-
-        // GET: odata/Repositories(5)
-        [EnableQuery]
-        public SingleResult<Repository> GetRepository([FromODataUri] int key)
+        
+        // GET: api/Repositories/5
+        [ResponseType(typeof(Repository))]
+        public IHttpActionResult GetRepository(int id)
         {
-            return SingleResult.Create(db.Repository.Where(repository => repository.ID == key));
-        }
-
-        // PUT: odata/Repositories(5)
-        public IHttpActionResult Put([FromODataUri] int key, Delta<Repository> patch)
-        {
-            Validate(patch.GetEntity());
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Repository repository = db.Repository.Find(key);
+            Repository repository = db.Repository.Find(id);
             if (repository == null)
             {
                 return NotFound();
             }
 
-            patch.Put(repository);
+            return Ok(repository);
+        }
+
+        const string queueName = @".\private$\GithubQueue";
+        //get all repository for user by username
+        [ResponseType(typeof(Repository))]
+        [Route("api/users/{username}/repos")]
+        // check if queue exists, if not create it
+        public List<Repository> GetRepository(string username)
+        {
+            MessageQueue msMq = null;
+
+            if (!MessageQueue.Exists(queueName))
+            {
+                msMq = MessageQueue.Create(queueName);
+            }
+            else
+            {
+                msMq = new MessageQueue(queueName);
+                
+            }
+
+            try
+            {
+                msMq.Send(username);
+            }
+
+            catch (MessageQueueException ee)
+            {
+                Console.Write(ee.ToString());
+            }
+
+            catch (Exception eee)
+            {
+                Console.Write(eee.ToString());
+            }
+
+            finally
+            {
+                msMq.Close();
+            }
+
+            //listener
+
+            MessageQueue myQueue = new MessageQueue(@".\private$\GithubQueueRepo");
+            myQueue.Formatter = new XmlMessageFormatter(new Type[] { typeof(String) });
+
+            
+            // End the asynchronous Receive operation.
+            Message m = myQueue.Receive();
+
+            // Display message information on the screen.
+            List<Repository> repositoryList = getRepositoryList((string)m.Body);
+
+
+            return repositoryList;
+            
+        }
+
+        private static void MyReceiveCompleted(Object source,
+           ReceiveCompletedEventArgs asyncResult)
+        {
+            // Connect to the queue.
+            MessageQueue mq = (MessageQueue)source;
+
+            // End the asynchronous Receive operation.
+            Message m = mq.EndReceive(asyncResult.AsyncResult);
+
+            // Display message information on the screen.
+            List<Repository> t=getRepositoryList((string)m.Body);
+
+            
+            // Restart the asynchronous Receive operation.
+            mq.BeginReceive();
+
+            return;
+        }
+        
+        //get data from sevice
+        public static List<Repository> getRepositoryList(string msg)
+        {
+            var serializer = new XmlSerializer(typeof(List<Repository>));
+            List<Repository> result;
+
+            using (TextReader reader = new StringReader(msg))
+            {
+                result = (List<Repository>)serializer.Deserialize(reader);
+            }
+
+            return result;
+         }
+        //public IEnumerable<Repository> GetRepository(string username)
+        //{
+        //    User user = db.User.Where(x => x.
+        //        Username == username).FirstOrDefault<User>();
+        //    if (user == null)
+        //    {
+        //        return null;
+        //    }
+        //    return db.Repository.Where(x => x.UserId == user.ID).ToList();
+        //}
+
+        [HttpPost]
+        [Route("save")]
+        public HttpResponseMessage save(Repository repository)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                else
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            }
+                catch (DbUpdateConcurrencyException)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, ModelState);
+            }
+            
+        }
+
+        // PUT: api/Repositories/5
+        [ResponseType(typeof(void))]
+        public HttpResponseMessage PutRepository(int id, Repository repository)
+        {
+            if (id != repository.ID)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            }
+            if (ModelState.IsValid)
+            {
+                db.Entry(repository).State = EntityState.Modified;
+                try
+                {
+                    db.SaveChanges();
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!RepositoryExists(id))
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Invalid ID");
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            else
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            }
+           /* if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != repository.ID)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(repository).State = EntityState.Modified;
 
             try
             {
@@ -67,7 +208,7 @@ namespace GithubWebApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!RepositoryExists(key))
+                if (!RepositoryExists(id))
                 {
                     return NotFound();
                 }
@@ -77,11 +218,12 @@ namespace GithubWebApi.Controllers
                 }
             }
 
-            return Updated(repository);
+            return StatusCode(HttpStatusCode.NoContent);*/
         }
 
-        // POST: odata/Repositories
-        public IHttpActionResult Post(Repository repository)
+        // POST: api/Repositories
+        [ResponseType(typeof(Repository))]
+        public IHttpActionResult PostRepository(Repository repository)
         {
             if (!ModelState.IsValid)
             {
@@ -91,51 +233,14 @@ namespace GithubWebApi.Controllers
             db.Repository.Add(repository);
             db.SaveChanges();
 
-            return Created(repository);
+            return CreatedAtRoute("DefaultApi", new { id = repository.ID }, repository);
         }
 
-        // PATCH: odata/Repositories(5)
-        [AcceptVerbs("PATCH", "MERGE")]
-        public IHttpActionResult Patch([FromODataUri] int key, Delta<Repository> patch)
+        // DELETE: api/Repositories/5
+        [ResponseType(typeof(Repository))]
+        public IHttpActionResult DeleteRepository(int id)
         {
-            Validate(patch.GetEntity());
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Repository repository = db.Repository.Find(key);
-            if (repository == null)
-            {
-                return NotFound();
-            }
-
-            patch.Patch(repository);
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RepositoryExists(key))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return Updated(repository);
-        }
-
-        // DELETE: odata/Repositories(5)
-        public IHttpActionResult Delete([FromODataUri] int key)
-        {
-            Repository repository = db.Repository.Find(key);
+            Repository repository = db.Repository.Find(id);
             if (repository == null)
             {
                 return NotFound();
@@ -144,14 +249,7 @@ namespace GithubWebApi.Controllers
             db.Repository.Remove(repository);
             db.SaveChanges();
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // GET: odata/Repositories(5)/RepUser
-        [EnableQuery]
-        public SingleResult<User> GetRepUser([FromODataUri] int key)
-        {
-            return SingleResult.Create(db.Repository.Where(m => m.ID == key).Select(m => m.RepUser));
+            return Ok(repository);
         }
 
         protected override void Dispose(bool disposing)
@@ -163,9 +261,9 @@ namespace GithubWebApi.Controllers
             base.Dispose(disposing);
         }
 
-        private bool RepositoryExists(int key)
+        private bool RepositoryExists(int id)
         {
-            return db.Repository.Count(e => e.ID == key) > 0;
+            return db.Repository.Count(e => e.ID == id) > 0;
         }
     }
 }

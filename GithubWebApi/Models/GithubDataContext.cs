@@ -9,6 +9,8 @@ namespace GithubWebApi.Models
     public class GithubDataContext : DbContext
     {
         public GithubDataContext(): base("GithubConnection") {
+            this.Configuration.LazyLoadingEnabled = false;
+            this.Configuration.ProxyCreationEnabled = false;
         }
 
         public DbSet<User> User { get; set; }

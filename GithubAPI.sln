@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GithubWebApi", "GithubWebAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GithubWebApp", "GithubWebApp\GithubWebApp.csproj", "{DEC205BE-A602-4194-AC31-0DDE606FD078}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GithubWebService", "GithubWebService\GithubWebService.csproj", "{0CF9944B-9AE6-4920-BC5D-3CD311D74683}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DEC205BE-A602-4194-AC31-0DDE606FD078}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEC205BE-A602-4194-AC31-0DDE606FD078}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEC205BE-A602-4194-AC31-0DDE606FD078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CF9944B-9AE6-4920-BC5D-3CD311D74683}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CF9944B-9AE6-4920-BC5D-3CD311D74683}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CF9944B-9AE6-4920-BC5D-3CD311D74683}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CF9944B-9AE6-4920-BC5D-3CD311D74683}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,4 @@
 ﻿using GithubWebApp.Models;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +13,10 @@ namespace GithubWebApp.Controllers
         // GET: User
         public ActionResult Index()
         {
-            //List<IEnumerable<GithubUserModel>> userList;
+            IEnumerable<GithubUserModel> userList;
             HttpResponseMessage response = GlobalVariables.WebApiClient.GetAsync("Users").Result;
-            var msg = response.Content.ReadAsStringAsync().Result;
-            //userList = response.Content.ReadAsAsync<List<IEnumerable<GithubUserModel>>>().Result;
-            GithubUserModel[] users = JsonConvert.DeserializeObject<GithubUserModel[]>(msg);
-            return View(users.ToList());
+            userList = response.Content.ReadAsAsync<IEnumerable<GithubUserModel>>().Result;
+            return View(userList);
         }
     }
 }

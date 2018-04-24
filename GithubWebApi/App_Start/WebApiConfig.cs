@@ -8,6 +8,7 @@ using Newtonsoft.Json.Serialization;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Extensions;
 using GithubWebApi.Models;
+using System.Net.Http.Headers;
     
 namespace GithubWebApi
 {
@@ -20,7 +21,7 @@ namespace GithubWebApi
             // Configure Web API to use only bearer token authentication.
             config.SuppressDefaultHostAuthentication();
             config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
-
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
             // Web API routes
             config.MapHttpAttributeRoutes();
 
@@ -29,12 +30,12 @@ namespace GithubWebApi
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-            builder.EntitySet<User>("Users");
-            builder.EntitySet<Organization>("Organizations");
-            builder.EntitySet<OrganizationMember>("OrganizationMembers");
-            builder.EntitySet<Repository>("Repositories");
-            config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
+            //ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+            //builder.EntitySet<User>("Users");
+            //builder.EntitySet<Organization>("Organizations");
+            //builder.EntitySet<OrganizationMember>("OrganizationMembers");
+            //builder.EntitySet<Repository>("Repositories");
+            //config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
 
 
         }

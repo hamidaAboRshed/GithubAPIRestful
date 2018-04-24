@@ -166,6 +166,9 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\OrganizationController.cs" />
+    <Compile Include="Controllers\OrganizationMemberController.cs" />
+    <Compile Include="Controllers\RepositoryController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -241,6 +244,12 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\Organization\Index.cshtml" />
+    <Content Include="Views\OrganizationMember\Index.cshtml" />
+    <Content Include="Views\Organization\AddorEdit.cshtml" />
+    <Content Include="Views\Repository\AddorEdit.cshtml" />
+    <Content Include="Views\Repository\Index.cshtml" />
+    <Content Include="Views\Repository\SearchForUser.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -7,59 +7,95 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
-using System.Web.Http.OData;
-using System.Web.Http.OData.Routing;
+using System.Web.Http.Description;
 using GithubWebApi.Models;
 
 namespace GithubWebApi.Controllers
 {
-    /*
-    The WebApiConfig class may require additional changes to add a route for this controller. Merge these statements into the Register method of the WebApiConfig class as applicable. Note that OData URLs are case sensitive.
-
-    using System.Web.Http.OData.Builder;
-    using System.Web.Http.OData.Extensions;
-    using GithubWebApi.Models;
-    ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<Organization>("Organizations");
-    builder.EntitySet<OrganizationMember>("OrganizationMember"); 
-    config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
-    */
-    public class OrganizationsController : ODataController
+    public class OrganizationsController : ApiController
     {
         private GithubDataContext db = new GithubDataContext();
 
-        // GET: odata/Organizations
-        [EnableQuery]
-        public IQueryable<Organization> GetOrganizations()
+        // GET: api/Organizations
+        public IQueryable<Organization> GetOrganization()
         {
             return db.Organization;
         }
 
-        // GET: odata/Organizations(5)
-        [EnableQuery]
-        public SingleResult<Organization> GetOrganization([FromODataUri] int key)
+        // GET: api/Organizations/5
+        [ResponseType(typeof(Organization))]
+        public IHttpActionResult GetOrganization(int id)
         {
-            return SingleResult.Create(db.Organization.Where(organization => organization.ID == key));
-        }
-
-        // PUT: odata/Organizations(5)
-        public IHttpActionResult Put([FromODataUri] int key, Delta<Organization> patch)
-        {
-            Validate(patch.GetEntity());
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Organization organization = db.Organization.Find(key);
+            Organization organization = db.Organization.Find(id);
             if (organization == null)
             {
                 return NotFound();
             }
 
-            patch.Put(organization);
+            return Ok(organization);
+        }
+
+        [HttpPost]
+        [Route("save")]
+        public HttpResponseMessage save(Organization org)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                else
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, ModelState);
+            }
+
+        }
+
+        // PUT: api/Organizations/5
+        [ResponseType(typeof(void))]
+        public HttpResponseMessage PutOrganization(int id, Organization organization)
+        {
+            if(id != organization.ID)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            }
+            if(ModelState.IsValid)
+            {
+                db.Entry(organization).State = EntityState.Modified;
+                try
+                {
+                    db.SaveChanges();
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                }
+                catch(DbUpdateConcurrencyException)
+                {
+                    if(!OrganizationExists(id))
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Invalid ID");
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            else
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            }
+           /* if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != organization.ID)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(organization).State = EntityState.Modified;
 
             try
             {
@@ -67,7 +103,7 @@ namespace GithubWebApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!OrganizationExists(key))
+                if (!OrganizationExists(id))
                 {
                     return NotFound();
                 }
@@ -77,13 +113,14 @@ namespace GithubWebApi.Controllers
                 }
             }
 
-            return Updated(organization);
+            return StatusCode(HttpStatusCode.NoContent);*/
         }
 
-        // POST: odata/Organizations
-        public IHttpActionResult Post(Organization organization)
+        // POST: api/Organizations
+        [ResponseType(typeof(Organization))]
+        public HttpResponseMessage PostOrganization(Organization organization)
         {
-            if (!ModelState.IsValid)
+           /* if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -91,51 +128,31 @@ namespace GithubWebApi.Controllers
             db.Organization.Add(organization);
             db.SaveChanges();
 
-            return Created(organization);
-        }
-
-        // PATCH: odata/Organizations(5)
-        [AcceptVerbs("PATCH", "MERGE")]
-        public IHttpActionResult Patch([FromODataUri] int key, Delta<Organization> patch)
-        {
-            Validate(patch.GetEntity());
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Organization organization = db.Organization.Find(key);
-            if (organization == null)
-            {
-                return NotFound();
-            }
-
-            patch.Patch(organization);
-
+            return CreatedAtRoute("DefaultApi", new { id = organization.ID }, organization);*/
             try
             {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrganizationExists(key))
+                if(ModelState.IsValid)
                 {
-                    return NotFound();
+                    db.Organization.Add(organization);
+                    db.SaveChanges();
+                    return new HttpResponseMessage(HttpStatusCode.OK);
                 }
                 else
                 {
-                    throw;
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
                 }
             }
-
-            return Updated(organization);
+            catch
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            }
         }
 
-        // DELETE: odata/Organizations(5)
-        public IHttpActionResult Delete([FromODataUri] int key)
+        // DELETE: api/Organizations/5
+        [ResponseType(typeof(Organization))]
+        public IHttpActionResult DeleteOrganization(int id)
         {
-            Organization organization = db.Organization.Find(key);
+            Organization organization = db.Organization.Find(id);
             if (organization == null)
             {
                 return NotFound();
@@ -144,14 +161,7 @@ namespace GithubWebApi.Controllers
             db.Organization.Remove(organization);
             db.SaveChanges();
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // GET: odata/Organizations(5)/OrganizationMemberList
-        [EnableQuery]
-        public IQueryable<OrganizationMember> GetOrganizationMemberList([FromODataUri] int key)
-        {
-            return db.Organization.Where(m => m.ID == key).SelectMany(m => m.OrganizationMemberList);
+            return Ok(organization);
         }
 
         protected override void Dispose(bool disposing)
@@ -163,9 +173,9 @@ namespace GithubWebApi.Controllers
             base.Dispose(disposing);
         }
 
-        private bool OrganizationExists(int key)
+        private bool OrganizationExists(int id)
         {
-            return db.Organization.Count(e => e.ID == key) > 0;
+            return db.Organization.Count(e => e.ID == id) > 0;
         }
     }
 }

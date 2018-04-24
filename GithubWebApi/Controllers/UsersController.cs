@@ -7,60 +7,62 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
-using System.Web.Http.OData;
-using System.Web.Http.OData.Routing;
+using System.Web.Http.Description;
 using GithubWebApi.Models;
 
 namespace GithubWebApi.Controllers
 {
-    /*
-    The WebApiConfig class may require additional changes to add a route for this controller. Merge these statements into the Register method of the WebApiConfig class as applicable. Note that OData URLs are case sensitive.
-
-    using System.Web.Http.OData.Builder;
-    using System.Web.Http.OData.Extensions;
-    using GithubWebApi.Models;
-    ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<User>("Users");
-    builder.EntitySet<Organization>("Organization"); 
-    builder.EntitySet<Repository>("Repository"); 
-    config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
-    */
-    public class UsersController : ODataController
+    public class UsersController : ApiController
     {
         private GithubDataContext db = new GithubDataContext();
 
-        // GET: odata/Users
-        [EnableQuery]
-        public IQueryable<User> GetUsers()
+        // GET: api/Users
+        public IQueryable<User> GetUser()
         {
             return db.User;
         }
 
-        // GET: odata/Users(5)
-        [EnableQuery]
-        public SingleResult<User> GetUser([FromODataUri] int key)
+        // GET: api/Users/5
+        [ResponseType(typeof(User))]
+        public IHttpActionResult GetUser(int id)
         {
-            return SingleResult.Create(db.User.Where(user => user.ID == key));
-        }
-
-        // PUT: odata/Users(5)
-        public IHttpActionResult Put([FromODataUri] int key, Delta<User> patch)
-        {
-            Validate(patch.GetEntity());
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            User user = db.User.Find(key);
+            User user = db.User.Find(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            patch.Put(user);
+            return Ok(user);
+        }
+
+        [ResponseType(typeof(User))]
+        [Route("api/basic/{username}/user")]
+        public IHttpActionResult GetUser(string username)
+        {
+            User user = db.User.Where(x => x.
+                Username == username).FirstOrDefault<User>();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
+        // PUT: api/Users/5
+        [ResponseType(typeof(void))]
+        public IHttpActionResult PutUser(int id, User user)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != user.ID)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +70,7 @@ namespace GithubWebApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(key))
+                if (!UserExists(id))
                 {
                     return NotFound();
                 }
@@ -78,11 +80,12 @@ namespace GithubWebApi.Controllers
                 }
             }
 
-            return Updated(user);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: odata/Users
-        public IHttpActionResult Post(User user)
+        // POST: api/Users
+        [ResponseType(typeof(User))]
+        public IHttpActionResult PostUser(User user)
         {
             if (!ModelState.IsValid)
             {
@@ -92,51 +95,14 @@ namespace GithubWebApi.Controllers
             db.User.Add(user);
             db.SaveChanges();
 
-            return Created(user);
+            return CreatedAtRoute("DefaultApi", new { id = user.ID }, user);
         }
 
-        // PATCH: odata/Users(5)
-        [AcceptVerbs("PATCH", "MERGE")]
-        public IHttpActionResult Patch([FromODataUri] int key, Delta<User> patch)
+        // DELETE: api/Users/5
+        [ResponseType(typeof(User))]
+        public IHttpActionResult DeleteUser(int id)
         {
-            Validate(patch.GetEntity());
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            User user = db.User.Find(key);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            patch.Patch(user);
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(key))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return Updated(user);
-        }
-
-        // DELETE: odata/Users(5)
-        public IHttpActionResult Delete([FromODataUri] int key)
-        {
-            User user = db.User.Find(key);
+            User user = db.User.Find(id);
             if (user == null)
             {
                 return NotFound();
@@ -145,21 +111,7 @@ namespace GithubWebApi.Controllers
             db.User.Remove(user);
             db.SaveChanges();
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // GET: odata/Users(5)/OrganizationList
-        [EnableQuery]
-        public IQueryable<Organization> GetOrganizationList([FromODataUri] int key)
-        {
-            return db.User.Where(m => m.ID == key).SelectMany(m => m.OrganizationList);
-        }
-
-        // GET: odata/Users(5)/RepositoryList
-        [EnableQuery]
-        public IQueryable<Repository> GetRepositoryList([FromODataUri] int key)
-        {
-            return db.User.Where(m => m.ID == key).SelectMany(m => m.RepositoryList);
+            return Ok(user);
         }
 
         protected override void Dispose(bool disposing)
@@ -171,9 +123,9 @@ namespace GithubWebApi.Controllers
             base.Dispose(disposing);
         }
 
-        private bool UserExists(int key)
+        private bool UserExists(int id)
         {
-            return db.User.Count(e => e.ID == key) > 0;
+            return db.User.Count(e => e.ID == id) > 0;
         }
     }
 }

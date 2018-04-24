@@ -10,5 +10,6 @@ namespace GithubWebApp.Models
         public int ID { set; get; }
         public string Name { set; get; }
         public string BillingEmail { set; get; }
+        public List<GithubOrganizationModel> OrganizationMemberList { set; get; }
     }
 }

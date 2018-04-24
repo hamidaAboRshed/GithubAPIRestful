@@ -13,7 +13,7 @@ namespace GithubWebApp
 
         static GlobalVariables()
         {
-            WebApiClient.BaseAddress = new Uri("http://localhost:31305/odata/");
+            WebApiClient.BaseAddress = new Uri("http://localhost:31305/api/");
             WebApiClient.DefaultRequestHeaders.Clear();
             WebApiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
