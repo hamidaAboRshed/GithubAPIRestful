@@ -1,15 +1,16 @@
-namespace GithubWebService.Migrations
+namespace GithubWebService.Migrations.GithubDataPart1Context
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<GithubWebService.Models.GithubDataPart1Context>
+    internal sealed class ConfigPart1 : DbMigrationsConfiguration<GithubWebService.Models.GithubDataPart1Context>
     {
-        public Configuration()
+        public ConfigPart1()
         {
             AutomaticMigrationsEnabled = false;
+            MigrationsDirectory = @"Migrations\GithubDataPart1Context";
         }
 
         protected override void Seed(GithubWebService.Models.GithubDataPart1Context context)

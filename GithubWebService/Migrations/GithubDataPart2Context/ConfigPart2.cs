@@ -1,18 +1,19 @@
-namespace GithubWebService.Migrations
+namespace GithubWebService.Migrations.GithubDataPart2Context
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<GithubWebService.Models.GithubDataPart1Context>
+    internal sealed class ConfigPart2 : DbMigrationsConfiguration<GithubWebService.Models.GithubDataPart2Context>
     {
-        public Configuration()
+        public ConfigPart2()
         {
             AutomaticMigrationsEnabled = false;
+            MigrationsDirectory = @"Migrations\GithubDataPart2Context";
         }
 
-        protected override void Seed(GithubWebService.Models.GithubDataPart1Context context)
+        protected override void Seed(GithubWebService.Models.GithubDataPart2Context context)
         {
             //  This method will be called after migrating to the latest version.
 

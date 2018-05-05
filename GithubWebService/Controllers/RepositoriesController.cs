@@ -13,18 +13,19 @@ namespace GithubWebService.Controllers
 {
     public class RepositoriesController : Controller
     {
-        private static GithubDataContext db = new GithubDataContext();
+        private static GithubDataPart1Context db1 = new GithubDataPart1Context();
+        private static GithubDataPart2Context db2 = new GithubDataPart2Context();
 
         //Get Repository for User
         public static List<Repository> GetRepository(string username)
         {
-            User user = db.User.Where(x => x.
+            User user = db1.User.Where(x => x.
                 Username == username).FirstOrDefault<User>();
             if (user == null)
             {
                 return null;
             }
-            return db.Repository.Where(x => x.UserId == user.ID).ToList();
+            return db2.Repository.Where(x => x.UserId == user.ID).ToList();
         }
 
 
@@ -32,7 +33,7 @@ namespace GithubWebService.Controllers
         // GET: Repositories
         public ActionResult Index()
         {
-            var repository = db.Repository.Include(r => r.RepUser);
+            var repository = db2.Repository.Include(r => r.RepUser);
             return View(repository.ToList());
         }
 
@@ -43,7 +44,7 @@ namespace GithubWebService.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Repository repository = db.Repository.Find(id);
+            Repository repository = db2.Repository.Find(id);
             if (repository == null)
             {
                 return HttpNotFound();
@@ -54,7 +55,7 @@ namespace GithubWebService.Controllers
         // GET: Repositories/Create
         public ActionResult Create()
         {
-            ViewBag.UserId = new SelectList(db.User, "ID", "Username");
+            ViewBag.UserId = new SelectList(db1.User, "ID", "Username");
             return View();
         }
 
@@ -67,12 +68,12 @@ namespace GithubWebService.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Repository.Add(repository);
-                db.SaveChanges();
+                db2.Repository.Add(repository);
+                db2.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.UserId = new SelectList(db.User, "ID", "Username", repository.UserId);
+            ViewBag.UserId = new SelectList(db1.User, "ID", "Username", repository.UserId);
             return View(repository);
         }
 
@@ -83,12 +84,12 @@ namespace GithubWebService.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Repository repository = db.Repository.Find(id);
+            Repository repository = db2.Repository.Find(id);
             if (repository == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.UserId = new SelectList(db.User, "ID", "Username", repository.UserId);
+            ViewBag.UserId = new SelectList(db1.User, "ID", "Username", repository.UserId);
             return View(repository);
         }
 
@@ -101,11 +102,11 @@ namespace GithubWebService.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(repository).State = EntityState.Modified;
-                db.SaveChanges();
+                db2.Entry(repository).State = EntityState.Modified;
+                db2.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.UserId = new SelectList(db.User, "ID", "Username", repository.UserId);
+            ViewBag.UserId = new SelectList(db1.User, "ID", "Username", repository.UserId);
             return View(repository);
         }
 
@@ -116,7 +117,7 @@ namespace GithubWebService.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Repository repository = db.Repository.Find(id);
+            Repository repository = db2.Repository.Find(id);
             if (repository == null)
             {
                 return HttpNotFound();
@@ -129,9 +130,9 @@ namespace GithubWebService.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Repository repository = db.Repository.Find(id);
-            db.Repository.Remove(repository);
-            db.SaveChanges();
+            Repository repository = db2.Repository.Find(id);
+            db2.Repository.Remove(repository);
+            db2.SaveChanges();
             return RedirectToAction("Index");
         }
 
@@ -139,7 +140,7 @@ namespace GithubWebService.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                db2.Dispose();
             }
             base.Dispose(disposing);
         }

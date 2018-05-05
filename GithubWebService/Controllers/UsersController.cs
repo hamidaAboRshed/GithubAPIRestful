@@ -12,7 +12,7 @@ namespace GithubWebService.Controllers
 {
     public class UsersController : Controller
     {
-        private GithubDataContext db = new GithubDataContext();
+        private GithubDataPart1Context db = new GithubDataPart1Context();
 
         // GET: Users
         public ActionResult Index()

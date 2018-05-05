@@ -169,8 +169,23 @@
     <Compile Include="Migrations\201804211959021_first.Designer.cs">
       <DependentUpon>201804211959021_first.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201805050256522_test.cs" />
+    <Compile Include="Migrations\201805050256522_test.Designer.cs">
+      <DependentUpon>201805050256522_test.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\GithubDataContext.cs" />
+    <Compile Include="Migrations\GithubDataPart1Context\201805050320402_test.cs" />
+    <Compile Include="Migrations\GithubDataPart1Context\201805050320402_test.Designer.cs">
+      <DependentUpon>201805050320402_test.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\GithubDataPart1Context\ConfigPart1.cs" />
+    <Compile Include="Migrations\GithubDataPart2Context\201805050320554_test2.cs" />
+    <Compile Include="Migrations\GithubDataPart2Context\201805050320554_test2.Designer.cs">
+      <DependentUpon>201805050320554_test2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\GithubDataPart2Context\ConfigPart2.cs" />
+    <Compile Include="Models\GithubDataPart1Context.cs" />
+    <Compile Include="Models\GithubDataPart2Context.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\OrganizationMember.cs" />
@@ -243,6 +258,15 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201804211959021_first.resx">
       <DependentUpon>201804211959021_first.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805050256522_test.resx">
+      <DependentUpon>201805050256522_test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\GithubDataPart1Context\201805050320402_test.resx">
+      <DependentUpon>201805050320402_test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\GithubDataPart2Context\201805050320554_test2.resx">
+      <DependentUpon>201805050320554_test2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
