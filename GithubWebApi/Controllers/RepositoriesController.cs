@@ -23,10 +23,10 @@ namespace GithubWebApi.Controllers
         private GithubDataContext db = new GithubDataContext();
 
         // GET: api/Repositories
-        public IQueryable<Repository> GetRepository()
-        {
-            return db.Repository;
-        }
+        //public IQueryable<Repository> GetRepository()
+        //{
+        //    return db.Repository;
+        //}
         
         // GET: api/Repositories/5
         [ResponseType(typeof(Repository))]
@@ -46,7 +46,7 @@ namespace GithubWebApi.Controllers
         [ResponseType(typeof(Repository))]
         [Route("api/users/{username}/repos")]
         // check if queue exists, if not create it
-        public List<Repository> GetRepository(string username)
+        public string GetRepository(string username)
         {
             MessageQueue msMq = null;
 
@@ -80,6 +80,15 @@ namespace GithubWebApi.Controllers
                 msMq.Close();
             }
 
+            //waitMessage wait_message = new waitMessage();
+            string wait_message = "Your request is processing .. Please wait";
+            return wait_message;
+            
+        }
+        [ResponseType(typeof(Repository))]
+        [Route("api/users/repos/get")]
+        public List<Repository> GetRepository()
+        {
             //listener
 
             MessageQueue myQueue = new MessageQueue(@".\private$\GithubQueueRepo");

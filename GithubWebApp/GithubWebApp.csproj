@@ -250,6 +250,7 @@
     <Content Include="Views\Repository\AddorEdit.cshtml" />
     <Content Include="Views\Repository\Index.cshtml" />
     <Content Include="Views\Repository\SearchForUser.cshtml" />
+    <Content Include="Views\Repository\GetResponse.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -33,44 +33,52 @@ namespace GithubWebApp.Controllers
         {
             return View();
         }
-        [HttpGet]
-        public ActionResult Index()
+        [HttpPost]
+        public ActionResult Index(string username)
+        {
+            string msg;
+            HttpResponseMessage response = GlobalVariables.WebApiClient.GetAsync("users/" + username + "/repos".ToString()).Result;
+            msg = response.Content.ReadAsAsync<string>().Result;
+            ViewData["Message"] = msg;
+            return View();
+        }
+        public ActionResult GetResponse()
         {
             IEnumerable<GithubRepositoryModel> repositoriesList;
-            HttpResponseMessage response = GlobalVariables.WebApiClient.GetAsync("users/" + _username + "/repos".ToString()).Result;
+            HttpResponseMessage response = GlobalVariables.WebApiClient.GetAsync("users/repos/get".ToString()).Result;
             repositoriesList = response.Content.ReadAsAsync<IEnumerable<GithubRepositoryModel>>().Result;
             return View(repositoriesList);
         }
 
-        [HttpPost]
-        public ActionResult Index(string username)
-        {
-            //if(username=="search")
-            //    _username = Request.Form["username"];
-            _username = username;
-            IEnumerable<GithubRepositoryModel> repositoriesList;
-            HttpResponseMessage response = GlobalVariables.WebApiClient.GetAsync("users/"+ username+"/repos").Result;
-            repositoriesList = response.Content.ReadAsAsync<List<GithubRepositoryModel>>().Result;
-            if (repositoriesList != null)
-            {
-                if (repositoriesList.Count() != 0)
-                    userId = repositoriesList.ElementAt(0).UserId;
-                else
-                {
-                    GithubUserModel user;
-                    HttpResponseMessage response2 = GlobalVariables.WebApiClient.GetAsync("basic/" + username + "/user".ToString()).Result;
-                    user = response2.Content.ReadAsAsync<GithubUserModel>().Result;
-                    userId = user.ID;
-                }
-            }
-            else
-            {
-                userId = 0;
-                return View("~/Views/Shared/Error.cshtml");
-            }
-            //return null;
-            return View(repositoriesList);
-        }
+        //[HttpPost]
+        //public ActionResult Index(string username)
+        //{
+        //    //if(username=="search")
+        //    //    _username = Request.Form["username"];
+        //    _username = username;
+        //    IEnumerable<GithubRepositoryModel> repositoriesList;
+        //    HttpResponseMessage response = GlobalVariables.WebApiClient.GetAsync("users/"+ username+"/repos").Result;
+        //    repositoriesList = response.Content.ReadAsAsync<List<GithubRepositoryModel>>().Result;
+        //    if (repositoriesList != null)
+        //    {
+        //        if (repositoriesList.Count() != 0)
+        //            userId = repositoriesList.ElementAt(0).UserId;
+        //        else
+        //        {
+        //            GithubUserModel user;
+        //            HttpResponseMessage response2 = GlobalVariables.WebApiClient.GetAsync("basic/" + username + "/user".ToString()).Result;
+        //            user = response2.Content.ReadAsAsync<GithubUserModel>().Result;
+        //            userId = user.ID;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        userId = 0;
+        //        return View("~/Views/Shared/Error.cshtml");
+        //    }
+        //    //return null;
+        //    return View(repositoriesList);
+        //}
         [HttpGet]
         public ActionResult AddorEdit(int id = 0)
         {
