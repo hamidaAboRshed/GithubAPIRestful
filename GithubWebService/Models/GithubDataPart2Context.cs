@@ -15,6 +15,7 @@ namespace GithubWebService.Models
             this.Configuration.ProxyCreationEnabled = false;
         }
 
+        public DbSet<User> User { get; set; }
         public DbSet<Repository> Repository { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

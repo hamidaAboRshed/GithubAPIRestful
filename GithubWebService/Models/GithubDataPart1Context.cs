@@ -16,9 +16,14 @@ namespace GithubWebService.Models
         }
 
         public DbSet<User> User { get; set; }
+        public DbSet<Repository> Repository { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-           
+            modelBuilder.Entity<Repository>()
+             .HasRequired<User>(s => s.RepUser)
+             .WithMany(g => g.RepositoryList)
+             .HasForeignKey(s => s.UserId);
+
         }
         public static GithubDataPart1Context Create()
         {

@@ -13,7 +13,7 @@ namespace GithubWebService.Migrations.GithubDataPart2Context
         
         string IMigrationMetadata.Id
         {
-            get { return "201805050320554_test2"; }
+            get { return "201805051908553_test2"; }
         }
         
         string IMigrationMetadata.Source

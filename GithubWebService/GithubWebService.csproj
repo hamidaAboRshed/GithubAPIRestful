@@ -44,6 +44,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -174,14 +175,14 @@
       <DependentUpon>201805050256522_test.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Migrations\GithubDataPart1Context\201805050320402_test.cs" />
-    <Compile Include="Migrations\GithubDataPart1Context\201805050320402_test.Designer.cs">
-      <DependentUpon>201805050320402_test.cs</DependentUpon>
+    <Compile Include="Migrations\GithubDataPart1Context\201805051908297_test1.cs" />
+    <Compile Include="Migrations\GithubDataPart1Context\201805051908297_test1.Designer.cs">
+      <DependentUpon>201805051908297_test1.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\GithubDataPart1Context\ConfigPart1.cs" />
-    <Compile Include="Migrations\GithubDataPart2Context\201805050320554_test2.cs" />
-    <Compile Include="Migrations\GithubDataPart2Context\201805050320554_test2.Designer.cs">
-      <DependentUpon>201805050320554_test2.cs</DependentUpon>
+    <Compile Include="Migrations\GithubDataPart2Context\201805051908553_test2.cs" />
+    <Compile Include="Migrations\GithubDataPart2Context\201805051908553_test2.Designer.cs">
+      <DependentUpon>201805051908553_test2.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\GithubDataPart2Context\ConfigPart2.cs" />
     <Compile Include="Models\GithubDataPart1Context.cs" />
@@ -196,6 +197,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\Github_DB.mdf" />
+    <Content Include="App_Data\Github_DB1.mdf" />
+    <Content Include="App_Data\Github_DB1_log.ldf">
+      <DependentUpon>Github_DB1.mdf</DependentUpon>
+    </Content>
+    <Content Include="App_Data\Github_DB2.mdf" />
+    <Content Include="App_Data\Github_DB2_log.ldf">
+      <DependentUpon>Github_DB2.mdf</DependentUpon>
+    </Content>
     <Content Include="App_Data\Github_DB_log.ldf">
       <DependentUpon>Github_DB.mdf</DependentUpon>
     </Content>
@@ -247,7 +256,9 @@
     <Content Include="Views\Users\Edit.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
@@ -262,11 +273,11 @@
     <EmbeddedResource Include="Migrations\201805050256522_test.resx">
       <DependentUpon>201805050256522_test.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\GithubDataPart1Context\201805050320402_test.resx">
-      <DependentUpon>201805050320402_test.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\GithubDataPart1Context\201805051908297_test1.resx">
+      <DependentUpon>201805051908297_test1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\GithubDataPart2Context\201805050320554_test2.resx">
-      <DependentUpon>201805050320554_test2.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\GithubDataPart2Context\201805051908553_test2.resx">
+      <DependentUpon>201805051908553_test2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

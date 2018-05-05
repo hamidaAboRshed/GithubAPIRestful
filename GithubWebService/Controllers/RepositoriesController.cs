@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using GithubWebService.Models;
 using System.Messaging;
+using System.Transactions;
 
 namespace GithubWebService.Controllers
 {
@@ -16,17 +17,56 @@ namespace GithubWebService.Controllers
         private static GithubDataPart1Context db1 = new GithubDataPart1Context();
         private static GithubDataPart2Context db2 = new GithubDataPart2Context();
 
-        //Get Repository for User
         public static List<Repository> GetRepository(string username)
         {
-            User user = db1.User.Where(x => x.
-                Username == username).FirstOrDefault<User>();
-            if (user == null)
+            List<Repository> resultList;
+            using (TransactionScope tran = new TransactionScope())
             {
-                return null;
+                try
+                {
+
+                    User user = db1.User.Where(x => x.
+                        Username == username).FirstOrDefault<User>();
+                    List<Repository> RepositoryList = new List<Repository>();
+                    if (user != null)
+                    {
+                        RepositoryList = db1.Repository.Where(x => x.UserId == user.ID).ToList();
+                    }
+
+                    User user2 = db2.User.Where(x => x.
+                        Username == username).FirstOrDefault<User>();
+                    List<Repository> RepositoryList2 = new List<Repository>();
+                    if (user2 != null)
+                    {
+                        RepositoryList2 = db2.Repository.Where(x => x.UserId == user2.ID).ToList();
+                    }
+
+                    var result = RepositoryList.Concat(RepositoryList2);
+                    resultList = result.ToList();
+                    tran.Complete();
+                    return resultList;
+                }
+
+                catch (Exception eee)
+                {
+                    Console.Write(eee.ToString());
+                    return null;
+                }
             }
-            return db2.Repository.Where(x => x.UserId == user.ID).ToList();
+
+
         }
+        //Get Repository for User
+        //public static List<Repository> GetRepository(string username)
+        //{
+        //    User user = db1.User.Where(x => x.
+        //        Username == username).FirstOrDefault<User>();
+        //    if (user == null)
+        //    {
+        //        return null;
+        //    }
+        //    return db2.Repository.Where(x => x.UserId == user.ID).ToList();
+        //}
 
 
         #region All default method
